@@ -1,0 +1,105 @@
+<!-- Official_LMS/html_template/books.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .jumbotron {
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+            background-color: #e9ecef;
+            border-radius: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<nav class="navbar bg-body-tertiary">
+    <div class="container-fluid justify-content-center align-items-center" style="background-color: #0000FF">
+        <span class="navbar-brand mb-0 h1 text-light">
+            <img src="{% static 'Reed_Moore_Library_Logo_2024.png' %}" height="45" style="margin-right: 10px">
+            The Reed Moore Library
+        </span>
+    </div>
+</nav>
+
+<div class="container-fluid justify-content-center align-items-center">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'account_details' %}">Account Details</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'books' %}">Books</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'my_bag' %}">My Bag</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'returns' %}">Returns</a>
+        </li>
+    </ul>
+</div>
+
+<div class="container">
+    <h1>Books</h1>
+    <form method="get" action="{% url 'books' %}">
+        <input type="text" name="q" placeholder="Search for books" value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <h2>Books</h2>
+    <div class="row">
+        {% for book in books %}
+            <div class="col-md-4">
+                <div class="card">
+                    {% if book.photo %}
+                        <img src="{{ book.photo.url }}" class="card-img-top" alt="{{ book.title }}">
+                    {% else %}
+                        <img src="{% static 'default_book_image.png' %}" class="card-img-top" alt="{{ book.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text">Author: {{ book.author }}</p>
+                        <p class="card-text">Publisher: {{ book.publisher }}</p>
+                        <p class="card-text">Quantity: {{ book.quantity }}</p>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary">View Details</a>
+                        <a href="{% url 'add_to_cart' book.pk %}" class="btn btn-secondary">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <h2>EBooks</h2>
+    <div class="row">
+        {% for ebook in ebooks %}
+            <div class="col-md-4">
+                <div class="card">
+                    {% if ebook.photo %}
+                        <img src="{{ ebook.photo.url }}" class="card-img-top" alt="{{ ebook.title }}">
+                    {% else %}
+                        <img src="{% static 'default_book_image.png' %}" class="card-img-top" alt="{{ ebook.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ ebook.title }}</h5>
+                        <p class="card-text">Author: {{ ebook.author }}</p>
+                        <p class="card-text">Publisher: {{ ebook.publisher }}</p>
+                        <p class="card-text">Quantity: {{ ebook.quantity }}</p>
+                        <a href="{% url 'book_detail' ebook.pk %}" class="btn btn-primary">View Details</a>
+                        <a href="{% url 'add_to_cart' ebook.pk %}" class="btn btn-secondary">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

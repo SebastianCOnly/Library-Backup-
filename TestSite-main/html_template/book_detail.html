@@ -1,0 +1,19 @@
+<!-- Official_LMS/html_template/book_detail.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ book.title }}</title>
+</head>
+<body>
+    <h1>{{ book.title }}</h1>
+    <p>Author: {{ book.author }}</p>
+    <p>Publisher: {{ book.publisher }}</p>
+    <p>Quantity: {{ book.quantity }}</p>
+    <img src="{{ book.photo.url }}" alt="{{ book.title }}">
+    <form method="post" action="{% url 'add_to_cart' book.id %}">
+        {% csrf_token %}
+        <button type="submit">Add to Cart</button>
+    </form>
+</body>
+</html>

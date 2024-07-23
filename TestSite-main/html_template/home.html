@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<main role="main">
+<div class="jumbotron">
+    <div class="container">
+        <img src="{% static 'Reed_Moore_Library_Logo_2024.png' %}" class="rounded float-start" height="200" style="margin-right: 10px">
+        <h1 class="display-4">Hello readers!</h1>
+        <p>Welcome to Reed Moore Library. We stock a large variety of books to cater to the needs of all readers.</p>
+        <p><a role="button" href="{% url 'books' %}" class="btn btn-primary btn-lg">Browse our collection</a></p>
+    </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h2>Why is reading important?</h2>
+        <p>Reading is important because it enhances knowledge, improves critical thinking skills, and stimulates the mind. It exposes readers to new ideas, cultures, and perspectives, fostering empathy and understanding. Reading also improves vocabulary, communication skills, and concentration, contributing to personal and professional growth.</p>
+    </div>
+    <div class="col">
+      <h2>Key Benefits</h2>
+        <ul>
+            <li>Reading expands your knowledge on various topics, providing information and insights that can be useful in many aspects of life.</li>
+            <li>Engaging in reading keeps your brain active and can help prevent cognitive decline as you age.</li>
+            <li>Regular reading enhances your ability to concentrate and maintain focus for longer periods.</li>
+            <li>Exposure to new words and phrases in different contexts helps improve your vocabulary and language skills.</li>
+        </ul>
+    </div>
+    <div class="col">
+        <h2>Quote of the day</h2>
+        <p>"Success is not final, failure is not fatal: It is the courage to continue that counts." – Winston Churchill</p>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col">
+      {% if user.is_authenticated %}
+        <p><a role="button" href="{% url 'logout' %}" class="btn btn-danger">Logout</a></p>
+      {% else %}
+        <p><a role="button" href="{% url 'login' %}" class="btn btn-secondary">Login</a></p>
+        <p><a role="button" href="{% url 'register' %}" class="btn btn-secondary">Create an Account</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+</main>
+<footer class="container">
+    <p>© Reed Moore Library</p>
+</footer>
+{% endblock %}

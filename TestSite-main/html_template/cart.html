@@ -1,0 +1,23 @@
+<!-- Official_LMS/html_template/cart.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Cart</title>
+</head>
+<body>
+    <h1>My Cart</h1>
+    <ul>
+        {% for item in cart.cartitem_set.all %}
+        <li>
+            {{ item.book.title }} - Quantity: {{ item.quantity }}
+            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'books' %}">Continue Shopping</a>
+</body>
+</html>
