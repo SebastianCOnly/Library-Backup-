@@ -3,12 +3,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .forms import CustomUserCreationForm, UserUpdateForm
 from .models import Book, EBook, CartItem, Transaction, CustomUser
 from datetime import datetime, timedelta
+from .forms import CustomPasswordChangeForm
 
 def home(request):
     return render(request, 'home.html')
@@ -92,11 +93,21 @@ def readers(request):
 @login_required
 def add_to_cart(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, book=book)
-    if not created:
-        cart_item.quantity += 1
+    if book.quantity > 0:
+        cart_item, created = CartItem.objects.get_or_create(user=request.user, book=book)
+        if not created:
+            cart_item.quantity += 1
         cart_item.save()
-    return redirect('my_bag')
+
+        # Update the book's quantity
+        book.quantity -= 1
+        book.save()
+        
+        messages.success(request, f'{book.title} has been successfully added to your bag.')
+    else:
+        messages.error(request, f'No more copies of {book.title} are available.')
+
+    return redirect('books')
 
 @login_required
 def checkout(request):
@@ -108,13 +119,12 @@ def checkout(request):
             book.quantity -= item.quantity
             book.save()
             # Create a transaction for each book checked out
-            for _ in range(item.quantity):
-                Transaction.objects.create(
-                    user=user,
-                    book=book,
-                    date=datetime.now(),
-                    due_date=datetime.now() + timedelta(days=14)  # Set due date 14 days from now
-                )
+            Transaction.objects.create(
+                user=user,
+                book=book,
+                date=datetime.now(),
+                due_date=datetime.now() + timedelta(days=14)  # Set due date 14 days from now
+            )
             item.delete()
         else:
             messages.error(request, f'Not enough copies of {book.title} available.')
@@ -123,14 +133,14 @@ def checkout(request):
 
 @login_required
 def return_book(request, transaction_id):
-    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-    book = transaction.book
-    book.quantity += 1
-    book.save()
-    transaction.date_returned = datetime.now()
-    transaction.save()
-    messages.success(request, f'You have successfully returned {book.title}.')
-    return redirect('returns')
+        transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+        book = transaction.book
+        book.quantity += 1
+        book.save()
+        transaction.date_returned = datetime.now()
+        transaction.save()
+        messages.success(request, f'You have successfully returned {book.title}.')
+        return redirect('returns')
 
 @login_required
 def account_details(request):
@@ -144,24 +154,63 @@ def account_details(request):
 
 @login_required
 def edit_account_details(request):
-    user = request.user
+    user_form = None
+    password_form = None
 
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=user)
-        if user_form.is_valid():
-            user_form.save()
-            messages.success(request, 'Your account has been updated!')
-            return redirect('account_details')
+        if 'update_details' in request.POST:
+            user_form = UserUpdateForm(request.POST, instance=request.user)
+            if user_form.is_valid():
+                user_form.save()
+                messages.success(request, 'Your account details have been updated!')
+                return redirect('account_details')
+        elif 'change_password' in request.POST:
+            password_form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Important!
+                messages.success(request, 'Your password was successfully updated!')
+                return redirect('account_details')
+            else:
+                messages.error(request, 'Please correct the error below.')
+        elif 'delete_account' in request.POST:
+            request.user.delete()
+            messages.success(request, 'Your account has been deleted.')
+            return redirect('home')
     else:
-        user_form = UserUpdateForm(instance=user)
+        user_form = UserUpdateForm(instance=request.user)
+        password_form = CustomPasswordChangeForm(user=request.user)
 
     return render(request, 'edit_account_details.html', {
-        'user_form': user_form
+        'user_form': user_form,
+        'password_form': password_form
     })
+
+def delete_account(request):
+    user = request.user
+    user.delete()
+    messages.success(request, 'Your account has been deleted.')
+    return redirect('home')
+
 
 @login_required
 def remove_from_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+    book = cart_item.book
+    book.quantity += cart_item.quantity
+    book.save()
     cart_item.delete()
     messages.success(request, 'Item removed from your cart.')
     return redirect('my_bag')
+
+@login_required
+def renew_book(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+    if transaction.renewed:
+        messages.error(request, f'{transaction.book.title} has already been renewed once.')
+    else:
+        transaction.due_date += timedelta(days=7)
+        transaction.renewed = True
+        transaction.save()
+        messages.success(request, f'You have successfully renewed {transaction.book.title} for another week.')
+    return redirect('account_details')
