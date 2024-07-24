@@ -19,6 +19,7 @@ class Book(models.Model):
     publisher = models.CharField(max_length=255, null=True, blank=True)  # Temporary nullable
     photo = models.ImageField(upload_to='book_photos/', null=True, blank=True)  # Temporary nullable
     quantity = models.PositiveIntegerField(null=True, blank=True)  # Temporary nullable
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -40,6 +41,7 @@ class Transaction(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     date_returned = models.DateTimeField(null=True, blank=True)
     due_date = models.DateTimeField(default=default_due_date)
+    renewed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.book.title} ({self.date})"
