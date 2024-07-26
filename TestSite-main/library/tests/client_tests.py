@@ -1,6 +1,7 @@
 # Documentation for pytest-django: https://pytest-django.readthedocs.io/en/latest/index.html
 # Marking test functions in Pytest: https://docs.pytest.org/en/stable/how-to/mark.html
 
+import pytest
 from django.urls import reverse
 
 # Functionality Testing
@@ -15,15 +16,9 @@ or as a library employee (Admin account)."""
     books. """
 
 # Tests client view of home page while user is logged in
-def test_regular_user_view(client, django_user_model):
-
-    # Assigning dummy user data
-    username = "ButtermilkUser"
-    password = "myPass1234"
-    dummyUser = django_user_model.objects.create_user(username=username, 
-                                                 password=password)
+def test_regular_user_view(client, user):
     
-    client.force_login(dummyUser)
+    client.force_login(user)
     response = client.get('') # The home page is labeled as '' in urls.py
     
     assert response.status_code == 200
@@ -33,3 +28,24 @@ def test_an_admin_view(admin_client):
     response = admin_client.get('/admin/')
     
     assert response.status_code == 200
+
+
+'''
+
+order = Order()
+    first_item = Item('stuff', 12.34)
+    order.add_item(first_item)
+    assert len(order.items) == 1
+    assert order.items[0] == first_item
+'''
+# Add item to empty cart
+def test_add_to_bag(client, user):
+    client.force_login(user)
+
+    url = reverse('add_to_cart', 
+                  kwargs={'book_id': 1})
+
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert 'ButtermilkUser' in response.content
