@@ -14,14 +14,8 @@
             border-radius: 0.3rem;
         }
         .card-img-top {
-            height: 300px; /* Adjust this value to set your desired height */
-            object-fit: cover;
-            object-position: center;
-        }
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            height: 200px; /* Fixed height */
+            object-fit: cover; /* To maintain aspect ratio */
         }
     </style>
 </head>
@@ -78,8 +72,8 @@
     <h2>Books</h2>
     <div class="row">
         {% for book in books %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
+            <div class="col-md-4">
+                <div class="card">
                     {% if book.photo %}
                         <img src="{{ book.photo.url }}" class="card-img-top" alt="{{ book.title }}">
                     {% else %}
@@ -94,38 +88,9 @@
                         <form method="post" action="{% url 'add_to_cart' book.id %}">
                             {% csrf_token %}
                             {% if book.quantity == 0 %}
-                                <button class="btn btn-secondary mt-2" disabled>Unavailable</button>
+                                <button class="btn btn-secondary" disabled>Unavailable</button>
                             {% else %}
-                                <button type="submit" class="btn btn-primary mt-2">Add to Cart</button>
-                            {% endif %}
-                        </form>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-    <h2>EBooks</h2>
-    <div class="row">
-        {% for ebook in ebooks %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    {% if ebook.photo %}
-                        <img src="{{ ebook.photo.url }}" class="card-img-top" alt="{{ ebook.title }}">
-                    {% else %}
-                        <img src="{% static 'default_book_image.png' %}" class="card-img-top" alt="{{ ebook.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ ebook.title }}</h5>
-                        <p class="card-text">Author: {{ ebook.author }}</p>
-                        <p class="card-text">Publisher: {{ ebook.publisher }}</p>
-                        <p class="card-text">Quantity: {{ ebook.quantity }}</p>
-                        <a href="{% url 'book_detail' ebook.pk %}" class="btn btn-primary">View Details</a>
-                        <form method="post" action="{% url 'add_to_cart' ebook.id %}">
-                            {% csrf_token %}
-                            {% if ebook.quantity == 0 %}
-                                <button class="btn btn-secondary mt-2" disabled>Unavailable</button>
-                            {% else %}
-                                <button type="submit" class="btn btn-primary mt-2">Add to Cart</button>
+                                <button type="submit" class="btn btn-primary">Add to Cart</button>
                             {% endif %}
                         </form>
                     </div>

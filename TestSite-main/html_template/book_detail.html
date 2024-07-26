@@ -1,5 +1,6 @@
 <!-- Official_LMS/html_template/book_detail.html -->
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,6 +37,7 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary btn-add-to-cart">Add to Cart</button>
                 </form>
+                <a href="{% url 'books' %}" class="btn btn-secondary btn-add-to-cart">Back to Books</a>
             </div>
         </div>
     </div>

@@ -93,20 +93,22 @@ def readers(request):
 @login_required
 def add_to_cart(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    if book.quantity > 0:
-        cart_item, created = CartItem.objects.get_or_create(user=request.user, book=book)
-        if not created:
+    cart_item, created = CartItem.objects.get_or_create(user=request.user, book=book)
+    if not created:
+        if cart_item.quantity < book.quantity:
             cart_item.quantity += 1
-        cart_item.save()
-
-        # Update the book's quantity
-        book.quantity -= 1
-        book.save()
-        
-        messages.success(request, f'{book.title} has been successfully added to your bag.')
+            cart_item.save()
+        else:
+            messages.error(request, 'Not enough copies available.')
+            return redirect('books')
     else:
-        messages.error(request, f'No more copies of {book.title} are available.')
-
+        if book.quantity > 0:
+            cart_item.quantity = 1
+            cart_item.save()
+        else:
+            messages.error(request, 'Not enough copies available.')
+            return redirect('books')
+    messages.success(request, 'Successfully added to bag.')
     return redirect('books')
 
 @login_required
@@ -116,15 +118,17 @@ def checkout(request):
     for item in cart_items:
         book = item.book
         if book.quantity >= item.quantity:
+            # Decrement the book quantity only during checkout
             book.quantity -= item.quantity
             book.save()
-            # Create a transaction for each book checked out
-            Transaction.objects.create(
-                user=user,
-                book=book,
-                date=datetime.now(),
-                due_date=datetime.now() + timedelta(days=14)  # Set due date 14 days from now
-            )
+            # Create a transaction for each quantity of the book checked out
+            for _ in range(item.quantity):
+                Transaction.objects.create(
+                    user=user,
+                    book=book,
+                    date=datetime.now(),
+                    due_date=datetime.now() + timedelta(days=14)
+                )
             item.delete()
         else:
             messages.error(request, f'Not enough copies of {book.title} available.')
@@ -133,14 +137,14 @@ def checkout(request):
 
 @login_required
 def return_book(request, transaction_id):
-        transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-        book = transaction.book
-        book.quantity += 1
-        book.save()
-        transaction.date_returned = datetime.now()
-        transaction.save()
-        messages.success(request, f'You have successfully returned {book.title}.')
-        return redirect('returns')
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+    book = transaction.book
+    book.quantity += 1
+    book.save()
+    transaction.date_returned = datetime.now()
+    transaction.save()
+    messages.success(request, f'You have successfully returned {book.title}.')
+    return redirect('returns')
 
 @login_required
 def account_details(request):
