@@ -29,15 +29,6 @@ def test_an_admin_view(admin_client):
     
     assert response.status_code == 200
 
-
-'''
-
-order = Order()
-    first_item = Item('stuff', 12.34)
-    order.add_item(first_item)
-    assert len(order.items) == 1
-    assert order.items[0] == first_item
-'''
 # Add item to empty cart
 def test_add_to_bag(client, user):
     client.force_login(user)
