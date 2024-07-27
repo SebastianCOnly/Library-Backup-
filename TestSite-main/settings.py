@@ -123,7 +123,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'library.CustomUser'
 
+# handles book images
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# if a user were to access a restricted page, they would go back to login. 
 LOGIN_URL = 'login'
