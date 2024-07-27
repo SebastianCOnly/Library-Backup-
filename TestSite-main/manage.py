@@ -3,6 +3,8 @@
 import os
 import sys
 
+# script is for managing your Django project. 
+# Allows us to running the server, make migrations, createsuperusers, and etc..
 
 def main():
     """Run administrative tasks."""
