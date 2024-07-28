@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Book, EBook, Transaction
+from .models import CustomUser, Book, Transaction
 from django.utils.html import format_html
 from datetime import timedelta
 
@@ -48,11 +48,5 @@ admin.site.register(CustomUser, CustomUserAdmin)
 # Admin configuration for the Book model
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'publisher', 'quantity')
-    search_fields = ('title', 'author', 'publisher')
-
-# Admin configuration for the EBook model
-@admin.register(EBook)
-class EBookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'publisher', 'quantity')
     search_fields = ('title', 'author', 'publisher')
