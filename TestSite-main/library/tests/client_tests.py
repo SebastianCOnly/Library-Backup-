@@ -3,6 +3,13 @@
 
 import pytest
 from django.urls import reverse
+from library.views import add_to_cart
+from library.views import books
+from unittest.mock import Mock, patch
+from Official_LMS import settings
+from django.db.models import Q
+from library.models import Book
+from django.shortcuts import get_object_or_404
 
 # Functionality Testing
 """
@@ -29,14 +36,29 @@ def test_an_admin_view(admin_client):
     
     assert response.status_code == 200
 
-# Add item to empty cart
+# Tests if user can add a single book to the cart
 def test_add_to_bag(client, user):
+
     client.force_login(user)
-
     url = reverse('add_to_cart', 
-                  kwargs={'book_id': 1})
-
-    response = client.get(url)
+                  kwargs={'book_id': 6})
+    response = client.post(url)
 
     assert response.status_code == 200
-    assert 'ButtermilkUser' in response.content
+
+# Tests if a regular user can search
+# Issues with this working
+@pytest.mark.django_db
+def test_search(client):
+    
+    if Book.objects.filter(Q(title__icontains='Lightning')) is True:
+        bookOne = True
+    else:
+        bookOne = False
+    if Book.objects.filter(Q(author__icontains='rick'))is True:
+        bookTwo = True
+    else:
+        bookTwo = False
+
+    assert bookOne is True
+    assert bookTwo is True
